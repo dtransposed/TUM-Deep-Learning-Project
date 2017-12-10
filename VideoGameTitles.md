@@ -6,7 +6,6 @@ Quake
 Doom
 Halo 
 Borderlands
-bla
 Duke Nukem
 Battlefield
 Call of Duty
