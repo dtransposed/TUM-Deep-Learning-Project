@@ -60,7 +60,7 @@ for folder in class_folder_strucutre:
                     break
                 if (frameId % math.floor(frameRate) == 0):
                     filename = imagesFolder + "/frame_" + str(folder) + "_" + str(int(frameId)) + ".jpg"
-                    cv2.imwrite(video_folder_name, frame)
+                    cv2.imwrite(FolderName, frame)
             cap.release()
             print("6")
         except:
