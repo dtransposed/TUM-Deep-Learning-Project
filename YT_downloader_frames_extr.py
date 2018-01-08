@@ -20,13 +20,14 @@ This code has three parts:
 4. Run
 '''
 
-
+# extracting frames into a proper folder structer based on a defined structure
 import pandas as pd
 import pytube
 import cv2
 import math
 import os
 
+        
 os.chdir("C:/Users/tatar/Desktop/DL Project/Data_set_2/Class_3_RPG") # path of the folder with video folders
 class_folder_path = os.getcwd().replace("\\", "/")
 class_folder_strucutre = os.listdir(class_folder_path) 
@@ -40,7 +41,6 @@ for folder in class_folder_strucutre:
      
     for video in filelist_video_folder:
         try:
-            
             plik = plik+1 #just for naming
             print("plik:", plik)
             videoFile = video_folder + "/"+ str(video) #path to find videos in video folder
@@ -50,7 +50,7 @@ for folder in class_folder_strucutre:
             
             imagesFolder = FolderName # where to save frames
             cap = cv2.VideoCapture(videoFile)
-            frameRate = 25 # frame rate
+            frameRate =25# cap.get(100) #frame rate
             while(cap.isOpened()):
                 frameId = cap.get(1) #current frame number
                 ret, frame = cap.read()
@@ -59,13 +59,14 @@ for folder in class_folder_strucutre:
                 if (ret != True):
                     break
                 if (frameId % math.floor(frameRate) == 0):
-                    filename = imagesFolder + "/frame_" + str(folder) + "_" + str(int(frameId)) + ".jpg"
-                    cv2.imwrite(FolderName, frame)
+                    filename = imagesFolder + "/image_" + str(int(frameId)) + ".jpg"
+                    cv2.imwrite(filename, frame)
             cap.release()
             print("6")
         except:
             pass
 
+    
 
 
 
