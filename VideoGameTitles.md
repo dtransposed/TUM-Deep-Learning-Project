@@ -11,6 +11,10 @@ Battlefield
 Call of Duty
 Serious Sam
 Gears of War
+Far Cry
+Left 4 Dead
+Medal of Honor
+Wolfenstein
 
 !!Strategy!!
 Warcraft Frozen Throne
@@ -24,9 +28,13 @@ Heroes 4
 Xcom
 Civilisation
 Europa Universalis
+Anno
+Empire Earth
+Rome:Total War
+Stronghold
 
 !!RPG!!
-Elder Scrolls
+Skyrim
 Witcher 3
 Fallout New Vegas
 World of Warcraft
@@ -37,3 +45,7 @@ Dragon Age
 Mass Effect
 Fable
 Shadow of mordor
+Assassine's Creed
+Final Fantasy
+Gothic
+Lord of the rings online
