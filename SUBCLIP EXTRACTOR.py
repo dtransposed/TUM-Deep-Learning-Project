@@ -50,3 +50,24 @@ for file in os.listdir(directory):
         i=i+1
         remov_beg=remov_beg+10
         print(remov_beg)
+        
+        
+##FRAME EXTRACTOR####
+
+directory2 = os.fsencode('F:/Wszystko Python/Pytorch Project/test')
+def extract_frames(movie, times, imgdir):
+    clip = VideoFileClip(movie)
+    for t in times:
+        imgpath = os.path.join(imgdir, '{}.jpg'.format(t))
+        clip.save_frame(imgpath, t)
+times=[]
+for a in range(36):
+    times.append(a)
+i=0
+for file in os.listdir(directory2):
+    print(file)
+    filename = os.fsdecode(file)
+    os.makedirs('F:/Wszystko Python/Pytorch Project/test/new%s'%(i), exist_ok=True)
+    imgdir = 'F:/Wszystko Python/Pytorch Project/test/new%s'%(i)
+    extract_frames(filename, times, imgdir)
+    i=i+1
