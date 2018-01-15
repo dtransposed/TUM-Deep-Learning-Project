@@ -28,8 +28,10 @@ import math
 import os
 
         
-os.chdir("C:/Users/tatar/Desktop/DL Project/Data_set_2/Class_3_RPG") # path of the folder with video folders
+os.chdir("/home/peternagy96/Project/server/small_videos_test") # path of the folder with video folders
+
 class_folder_path = os.getcwd().replace("\\", "/")
+
 class_folder_strucutre = os.listdir(class_folder_path) 
 
 for folder in class_folder_strucutre:
@@ -48,9 +50,8 @@ for folder in class_folder_strucutre:
             FolderName = str(videoFile2) # name of the frame subfolder
             os.makedirs(FolderName)
             
-            imagesFolder = FolderName # where to save frames
             cap = cv2.VideoCapture(videoFile)
-            frameRate =25# cap.get(100) #frame rate
+            frameRate =6# cap.get(100) #frame rate
             while(cap.isOpened()):
                 frameId = cap.get(1) #current frame number
                 ret, frame = cap.read()
@@ -59,7 +60,7 @@ for folder in class_folder_strucutre:
                 if (ret != True):
                     break
                 if (frameId % math.floor(frameRate) == 0):
-                    filename = imagesFolder + "/image_" + str(int(frameId)) + ".jpg"
+                    filename = FolderName + "/image_" + str(int(frameId)) + ".jpg"
                     cv2.imwrite(filename, frame)
             cap.release()
             print("6")
