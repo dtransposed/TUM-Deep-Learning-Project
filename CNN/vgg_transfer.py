@@ -40,13 +40,15 @@ import torch.nn as nn
 import torch.optim as optim
 from torch.optim import lr_scheduler
 from torch.autograd import Variable
+from torch.utils.data import TensorDataset
 import numpy as np
 import torchvision
 from torchvision import datasets, models, transforms
 import matplotlib.pyplot as plt
 import time
 import os
-from vgg import VGG
+#import vgg_model.VGG
+import VideoDataLoader as VDL
 
 plt.ion()   # interactive mode
 
@@ -73,30 +75,32 @@ plt.ion()   # interactive mode
 
 # Data augmentation and normalization for training
 # Just normalization for validation
-data_transforms = {
-    'train': transforms.Compose([
-        transforms.RandomSizedCrop(224),
-        transforms.RandomHorizontalFlip(),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ]),
-    'val': transforms.Compose([
-        transforms.Scale(256),
-        transforms.CenterCrop(224),
-        transforms.ToTensor(),
-        transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
-    ]),
-}
-
-data_dir = '/home/peter/Desktop/Robotics/DL_Project/models/vgg/Dataset'
-image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
-                                          data_transforms[x])
-                  for x in ['train', 'val']}
-dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
-                                             shuffle=True, num_workers=4)
-              for x in ['train', 'val']}
-dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
-class_names = image_datasets['train'].classes
+# =============================================================================
+# data_transforms = {
+#     'train': transforms.Compose([
+#         transforms.RandomSizedCrop(224),
+#         transforms.RandomHorizontalFlip(),
+#         transforms.ToTensor(),
+#         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+#     ]),
+#     'val': transforms.Compose([
+#         transforms.Scale(256),
+#         transforms.CenterCrop(224),
+#         transforms.ToTensor(),
+#         transforms.Normalize([0.485, 0.456, 0.406], [0.229, 0.224, 0.225])
+#     ]),
+# }
+# 
+# data_dir = '/home/peternagy96/Project/big_dataset/'
+# image_datasets = {x: datasets.ImageFolder(os.path.join(data_dir, x),
+#                                           data_transforms[x])
+#                   for x in ['train', 'val']}
+# dataloaders = {x: torch.utils.data.DataLoader(image_datasets[x], batch_size=4,
+#                                              shuffle=True, num_workers=4)
+#               for x in ['train', 'val']}
+# dataset_sizes = {x: len(image_datasets[x]) for x in ['train', 'val']}
+# class_names = image_datasets['train'].classes
+# =============================================================================
 
 use_gpu = torch.cuda.is_available()
 
@@ -120,12 +124,12 @@ def imshow(inp, title=None):
 
 
 # Get a batch of training data
-inputs, classes = next(iter(dataloaders['train']))
+#inputs, classes = next(iter(dataloaders['train']))
 
 # Make a grid from batch
-out = torchvision.utils.make_grid(inputs)
+#out = torchvision.utils.make_grid(inputs)
 
-imshow(out, title=[class_names[x] for x in classes])
+#imshow(out, title=[class_names[x] for x in classes])
 
 
 ######################################################################
@@ -140,6 +144,42 @@ imshow(out, title=[class_names[x] for x in classes])
 #
 # In the following, parameter ``scheduler`` is an LR scheduler object from
 # ``torch.optim.lr_scheduler``.
+    
+path = '/home/peternagy96/Project/big_dataset/'
+
+data = VDL.load_videos(path, resize_images=False, huge_data=False)
+
+inputs = data['data']
+
+targets = np.repeat(data['targets'],36)
+
+
+    
+
+print('orig size:')
+print(data['data'].shape)
+print('orig size:')
+print(data['targets'].shape)
+
+data_train, data_val = VDL.split_dataset(data, size=0.2)
+
+print('val size:')
+print(data_val['data'].shape)
+print('val size:')
+print(data_val['targets'].shape)
+
+print('train size:')
+print(data_train['data'].shape)
+print('train size:')
+print(data_train['targets'].shape)
+
+train_loader = VDL.iterate_videos(data_train)
+val_loader = VDL.iterate_videos(data_val)
+
+dataset = TensorDataset(torch.from_numpy(inputs),torch.from_numpy(targets))
+
+dataloaders = torch.utils.data.DataLoader(dataset, batch_size=4,
+                                          shuffle=True, num_workers=1)
 
 
 def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
@@ -147,65 +187,73 @@ def train_model(model, criterion, optimizer, scheduler, num_epochs=25):
 
     best_model_wts = model.state_dict()
     best_acc = 0.0
+    running_loss=0
+    running_corrects = 0
 
     for epoch in range(num_epochs):
         print('Epoch {}/{}'.format(epoch, num_epochs - 1))
         print('-' * 10)
 
         # Each epoch has a training and validation phase
-        for phase in ['train', 'val']:
-            if phase == 'train':
-                scheduler.step()
-                model.train(True)  # Set model to training mode
-            else:
-                model.train(False)  # Set model to evaluate mode
-
-            running_loss = 0.0
-            running_corrects = 0
+# =============================================================================
+#         for phase in ['train', 'val']:
+#             if phase == 'train':
+#                 scheduler.step()
+#                 model.train(True)  # Set model to training mode
+#             else:
+#                 model.train(False)  # Set model to evaluate mode
+# 
+#             running_loss = 0.0
+#             running_corrects = 0
+# =============================================================================
 
             # Iterate over data.
-            for data in dataloaders[phase]:
-                # get the inputs
-                inputs, labels = data
+        for data in dataloaders:
+            # get the inputs
+            inputs, labels = data
 
-                # wrap them in Variable
-                if use_gpu:
-                    inputs = Variable(inputs.cuda())
-                    labels = Variable(labels.cuda())
-                else:
-                    inputs, labels = Variable(inputs), Variable(labels)
+            # wrap them in Variable
+            if use_gpu:
+                inputs = Variable(inputs.cuda())
+                labels = Variable(labels.cuda())
+            else:
+                inputs, labels = Variable(inputs), Variable(labels)
 
-                
-                # zero the parameter gradients
-                optimizer.zero_grad()
+            
+            # zero the parameter gradients
+            optimizer.zero_grad()
 
-                # forward
-                outputs = model(inputs)
-                _, preds = torch.max(outputs.data, 1)
-                #print("round ", outputs)
-                loss = criterion(outputs, labels)
+            # forward
+            outputs = model(inputs)
+            _, preds = torch.max(outputs.data, 1)
+            #print("round ", outputs)
+            loss = criterion(outputs, labels)
 
-                # backward + optimize only if in training phase
-                if phase == 'train':
-                    loss.backward()
-                    optimizer.step()
+            # backward + optimize only if in training phase
+            #if phase == 'train':
+            loss.backward()
+            optimizer.step()
 
-                # statistics
-                running_loss += loss.data[0]
-                running_corrects += torch.sum(preds == labels.data)
+        # statistics
+        running_loss += loss.data[0]
+        running_corrects += torch.sum(preds == labels.data)
 
-            epoch_loss = running_loss / dataset_sizes[phase]
-            epoch_acc = running_corrects / dataset_sizes[phase]
+# =============================================================================
+#         epoch_loss = running_loss / dataset_sizes[phase]
+#         epoch_acc = running_corrects / dataset_sizes[phase]
+# =============================================================================
 
-            print('{} Loss: {:.4f} Acc: {:.4f}'.format(
-                phase, epoch_loss, epoch_acc))
-
-            # deep copy the model
-            if phase == 'val' and epoch_acc > best_acc:
-                best_acc = epoch_acc
-                best_model_wts = model.state_dict()
-
-        print()
+# =============================================================================
+#         print('{} Loss: {:.4f} Acc: {:.4f}'.format(
+#             phase, epoch_loss, epoch_acc))
+# 
+#         # deep copy the model
+#         if phase == 'val' and epoch_acc > best_acc:
+#             best_acc = epoch_acc
+#             best_model_wts = model.state_dict()
+# 
+#         print()
+# =============================================================================
 
     time_elapsed = time.time() - since
     print('Training complete in {:.0f}m {:.0f}s'.format(
@@ -254,13 +302,13 @@ def visualize_model(model, num_images=6):
 #
 # Load a pretrained model and reset final fully connected layer.
 #
-
-model_ft = VGG()
-# =============================================================================
-# model_ft = models.resnet18(pretrained=True)
-# num_ftrs = model_ft.fc.in_features
-# model_ft.fc = nn.Linear(num_ftrs, 2)
-# =============================================================================
+#model_ft = torchvision.models.vgg11(pretrained=True)
+#model_ft = VGG()
+model_ft = models.resnet18(pretrained=True)
+for param in model_ft.parameters():
+    param.requires_grad = False
+num_ftrs = model_ft.fc.in_features
+model_ft.fc = nn.Linear(num_ftrs, 3)
 
 if use_gpu:
     model_ft = model_ft.cuda()
