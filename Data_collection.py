@@ -27,7 +27,7 @@ def video_downloader(path_links, path_save, resolution):
             vids[1].download(path_save, filename=name)
         except:
             pass  
-    return None
+
 
 resolution = '"240"' # 360, 480 
 path_save = '/home/peternagy96/Project/server/01_Class_2'
@@ -69,7 +69,7 @@ def frame_extractor(frameRate, frameNumber, class_folder):
                     xname+=1
                     os.makedirs(str(xname))
         cap.release()
-    return None
+
 
 frameRate = 6    # frame rate
 frameNumber = 36 # number of frames in a folder
@@ -95,7 +95,7 @@ def trim_data(folder_path, folder_ind):
             shutil.rmtree(name)
         else:
             continue
-    Return None
+
     
 folder_path = "C:/Users..."      # folders path
 folder_ind = 2      # every i th folder will be deleted
