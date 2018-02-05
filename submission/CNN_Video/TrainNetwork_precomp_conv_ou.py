@@ -6,6 +6,11 @@ Created on Mon Jan 22 20:55:08 2018
 @author: peternagy96
 """
 
+'''
+Train the network with precomputed CNN output
+-> faster and CNN fixed anyway
+'''
+
 import PredictionHead as PH
 import VideoSolver as VS
 import VideoClassifier as VC
@@ -17,13 +22,6 @@ import torch
 from torch.utils.data import TensorDataset
 from torch.autograd import Variable
 from torch.optim import lr_scheduler
-
-
-'''
-for learning_rate in range(0,5,):
-    learning_rate = int(10**(learning_rate))/100000
-    print(learning_rate)
-'''
 
 #learning_rate = 0.0005 #densenet
 learning_rate=0.001 # best vgg
@@ -39,12 +37,6 @@ output_dim = 25088 #vgg1
 #
 hidden_dim = 4096
 #data_train = torch.from_numpy(train)
-
-# Load 900 sample data with 3 classes
-#data_train = pickle.load(open('conv_out_900_vgg11_train.p','rb'))
-#data_val = pickle.load(open('conv_out_900_vgg11_val.p','rb'))
-#targets_train = torch.from_numpy(pickle.load(open('targets_train_900.p','rb')))
-#targets_val = torch.from_numpy(pickle.load(open('targets_val_900.p','rb')))
 
 # Load 5000 sample data with 5 classes
 #merge
@@ -72,20 +64,6 @@ for i in range(0,output_classes):
     targets_train[i*800:(i+1)*800] = torch.from_numpy(pickle.load(open('targets_5000_train_class'+str(i)+'.p','rb')))
     targets_val[i*200:(i+1)*200] = torch.from_numpy(pickle.load(open('targets_5000_val_class'+str(i)+'.p','rb')))
     
-
-'''   
-
-data_train=torch.cat((data_train, data_val), 0)
-targets_train=torch.cat((targets_train, targets_val), 0)   
-'''
-'''targets_400_vgg11_test_class1.p conv_out_400_vgg11_test_class1.p
-data_test = data_val[500:]
-targets_test = targets_val[500:]
-data_val = data_val[:500]
-targets_val = targets_val[:500]
-'''
-
-
 N = targets_train.shape[0] + targets_val.shape[0]
 
 ##### Create data loaders
@@ -100,7 +78,7 @@ test_loader = torch.utils.data.DataLoader(dataset_test,num_workers=1,batch_size=
 dim = [10,10,10,20,2]  
 FC_param = np.array([[output_dim,hidden_dim],[hidden_dim,hidden_dim],[hidden_dim,output_classes]]) 
 #bias_def = True
-#pred_head = PHnew.MakeFullyConnected(FC_param)
+
 pred_head = PH.ThreeLayerFCN([output_dim,hidden_dim,output_classes])
 ##### Use Piotrs code
 
