@@ -1,6 +1,10 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
+'''
+Precomputing output of CNN
+'''
+
 import torch
 import numpy as np
 import VideoDataLoader as VDL
@@ -17,13 +21,9 @@ import pickle
 #path = '/home/peternagy96/Downloads/Frames_for _Damian' 
 path = '/home/peternagy96/Project/big_dataset'
 
-#data = VDL.load_videos(path, resize_images=False, huge_data=False)
+# dataloader
 data_loader = VDL.load_videos(path, resize_images=False, huge_data=False, vid_cap=1000, load_opt_flow=True)
 
-'''for i, data in enumerate(data_loader):
-    print(data['data'].shape)
-    print(data['optflow'].shape)
-'''
 
 for i, data in enumerate(data_loader):
     
